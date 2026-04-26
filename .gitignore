@@ -1,0 +1,14 @@
+/target/
+/.idea/
+/.vscode/
+/.DS_Store
+Thumbs.db
+.env
+.env.*
+!.env.example
+coverage/
+artifacts/
+dist/
+node_modules/
+*.log
+Cargo.lock

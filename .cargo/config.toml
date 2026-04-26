@@ -1,0 +1,9 @@
+[build]
+rustflags = ["-Dwarnings"]
+
+[target.'cfg(all())']
+rustflags = [
+  "-Dwarnings",
+  "-Wrust-2018-idioms",
+  "-Wunexpected_cfgs",
+]

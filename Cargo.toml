@@ -1,0 +1,44 @@
+[workspace]
+members = [
+  "apps/authd",
+  "crates/localzet-auth-core",
+  "crates/localzet-audit",
+  "crates/localzet-config",
+  "crates/localzet-crypto",
+  "crates/localzet-domain",
+  "crates/localzet-policy",
+  "crates/localzet-storage",
+]
+resolver = "2"
+
+[workspace.package]
+edition = "2021"
+license = "Apache-2.0"
+version = "0.1.0"
+authors = ["Localzet Contributors"]
+rust-version = "1.82"
+repository = "https://github.com/localzet/security"
+homepage = "https://github.com/localzet/security"
+description = "Open-source security control plane for applications, APIs, and CLI workloads"
+
+[workspace.dependencies]
+axum = { version = "0.7", features = ["macros"] }
+base64ct = { version = "1.6", features = ["alloc"] }
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+http = "1"
+jsonwebtoken = "9"
+rsa = { version = "0.9", features = ["pem", "sha2"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio-rustls", "postgres", "uuid", "chrono", "json", "macros", "migrate"] }
+thiserror = "1"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "signal", "net"] }
+tower = { version = "0.5", features = ["util"] }
+tower-http = { version = "0.6", features = ["trace"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+uuid = { version = "1", features = ["serde", "v4"] }
+url = { version = "2", features = ["serde"] }
+argon2 = "0.5"
+rand = "0.8"
