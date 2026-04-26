@@ -1,10 +1,9 @@
 use chrono::{Duration, Utc};
 use localzet_crypto::OpaqueTokenService;
 use localzet_domain::{
-    ApplicationRepository, AuthorizationCode, AuthorizationCodeRepository,
-    AuthorizationCodeStatus, PkceChallengeMethod, RefreshTokenRecord,
-    RefreshTokenRepository, RefreshTokenStatus, RepositoryError, TenantId,
-    TokenFamilyId, TokenSubject, UserId,
+    ApplicationRepository, AuthorizationCode, AuthorizationCodeRepository, AuthorizationCodeStatus,
+    PkceChallengeMethod, RefreshTokenRecord, RefreshTokenRepository, RefreshTokenStatus,
+    RepositoryError, TenantId, TokenFamilyId, TokenSubject, UserId,
 };
 use thiserror::Error;
 use url::Url;
@@ -50,7 +49,11 @@ impl AuthorizationCodeService {
             .await?
             .ok_or(AuthServiceError::UnknownClient)?;
 
-        if !application.redirect_uris.iter().any(|registered| registered == &redirect_uri) {
+        if !application
+            .redirect_uris
+            .iter()
+            .any(|registered| registered == &redirect_uri)
+        {
             return Err(AuthServiceError::InvalidRedirectUri);
         }
 
@@ -272,8 +275,8 @@ mod tests {
     use localzet_crypto::OpaqueTokenService;
     use localzet_domain::{
         Application, ApplicationKind, ApplicationRepository, AuthorizationCode,
-        AuthorizationCodeRepository, RefreshTokenRecord, RefreshTokenRepository,
-        RepositoryError, TenantScopedRepository,
+        AuthorizationCodeRepository, RefreshTokenRecord, RefreshTokenRepository, RepositoryError,
+        TenantScopedRepository,
     };
 
     use super::*;
@@ -316,7 +319,10 @@ mod tests {
 
     #[async_trait]
     impl AuthorizationCodeRepository for InMemoryRepo {
-        async fn save_authorization_code(&self, code: &AuthorizationCode) -> Result<(), RepositoryError> {
+        async fn save_authorization_code(
+            &self,
+            code: &AuthorizationCode,
+        ) -> Result<(), RepositoryError> {
             self.assert_tenant_scope(code.tenant_id).await?;
             self.codes
                 .lock()
@@ -359,12 +365,15 @@ mod tests {
 
     #[async_trait]
     impl RefreshTokenRepository for InMemoryRepo {
-        async fn save_refresh_token(&self, record: &RefreshTokenRecord) -> Result<(), RepositoryError> {
+        async fn save_refresh_token(
+            &self,
+            record: &RefreshTokenRecord,
+        ) -> Result<(), RepositoryError> {
             self.assert_tenant_scope(record.tenant_id).await?;
-            self.tokens
-                .lock()
-                .expect("tokens")
-                .insert((record.tenant_id, record.token_hash.clone()), record.clone());
+            self.tokens.lock().expect("tokens").insert(
+                (record.tenant_id, record.token_hash.clone()),
+                record.clone(),
+            );
             Ok(())
         }
 

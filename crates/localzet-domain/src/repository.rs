@@ -51,7 +51,10 @@ pub trait RefreshTokenRepository: TenantScopedRepository {
 
 #[async_trait]
 pub trait AuthorizationCodeRepository: TenantScopedRepository {
-    async fn save_authorization_code(&self, code: &AuthorizationCode) -> Result<(), RepositoryError>;
+    async fn save_authorization_code(
+        &self,
+        code: &AuthorizationCode,
+    ) -> Result<(), RepositoryError>;
     async fn find_authorization_code_by_hash(
         &self,
         tenant_id: TenantId,

@@ -8,10 +8,16 @@ pub struct PolicyDecision {
 
 impl PolicyDecision {
     pub const fn allow(reason: &'static str) -> Self {
-        Self { allowed: true, reason }
+        Self {
+            allowed: true,
+            reason,
+        }
     }
 
     pub const fn deny(reason: &'static str) -> Self {
-        Self { allowed: false, reason }
+        Self {
+            allowed: false,
+            reason,
+        }
     }
 }

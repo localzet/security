@@ -7,12 +7,10 @@ use serde::Serialize;
 use url::Url;
 
 pub use service::{
-    AuthServiceError, AuthorizationCodeService, IssuedAuthorizationCode,
-    IssuedRefreshToken, RefreshTokenService,
+    AuthServiceError, AuthorizationCodeService, IssuedAuthorizationCode, IssuedRefreshToken,
+    RefreshTokenService,
 };
-pub use token::{
-    IntrospectionResponse, JwtIssuer, TokenIssuerError, VerifiedAccessToken,
-};
+pub use token::{IntrospectionResponse, JwtIssuer, TokenIssuerError, VerifiedAccessToken};
 
 #[derive(Debug, Clone)]
 pub struct DiscoveryService {
@@ -29,11 +27,23 @@ impl DiscoveryService {
     pub fn document(&self) -> DiscoveryDocument {
         DiscoveryDocument {
             issuer: self.issuer.clone(),
-            authorization_endpoint: self.issuer.join("/oauth/authorize").expect("valid issuer path"),
+            authorization_endpoint: self
+                .issuer
+                .join("/oauth/authorize")
+                .expect("valid issuer path"),
             token_endpoint: self.issuer.join("/oauth/token").expect("valid issuer path"),
-            jwks_uri: self.issuer.join("/.well-known/jwks.json").expect("valid issuer path"),
-            revocation_endpoint: self.issuer.join("/oauth/revoke").expect("valid issuer path"),
-            introspection_endpoint: self.issuer.join("/oauth/introspect").expect("valid issuer path"),
+            jwks_uri: self
+                .issuer
+                .join("/.well-known/jwks.json")
+                .expect("valid issuer path"),
+            revocation_endpoint: self
+                .issuer
+                .join("/oauth/revoke")
+                .expect("valid issuer path"),
+            introspection_endpoint: self
+                .issuer
+                .join("/oauth/introspect")
+                .expect("valid issuer path"),
             device_authorization_endpoint: self
                 .issuer
                 .join("/oauth/device_authorization")
@@ -42,7 +52,11 @@ impl DiscoveryService {
             subject_types_supported: vec!["public"],
             id_token_signing_alg_values_supported: vec!["RS256"],
             scopes_supported: vec!["openid", "profile", "email", "offline_access"],
-            token_endpoint_auth_methods_supported: vec!["client_secret_basic", "client_secret_post", "private_key_jwt"],
+            token_endpoint_auth_methods_supported: vec![
+                "client_secret_basic",
+                "client_secret_post",
+                "private_key_jwt",
+            ],
             grant_types_supported: vec![
                 "authorization_code",
                 "refresh_token",

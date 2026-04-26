@@ -13,7 +13,8 @@ pub struct HttpConfig {
 
 impl HttpConfig {
     pub fn from_env() -> Result<Self, ConfigError> {
-        let bind_addr = env::var("LOCALZET_BIND_ADDR").unwrap_or_else(|_| "127.0.0.1:8080".to_owned());
+        let bind_addr =
+            env::var("LOCALZET_BIND_ADDR").unwrap_or_else(|_| "127.0.0.1:8080".to_owned());
         let issuer = env::var("LOCALZET_ISSUER")
             .unwrap_or_else(|_| "http://127.0.0.1:8080".to_owned())
             .parse()?;
@@ -65,9 +66,11 @@ pub struct BootstrapConfig {
 impl BootstrapConfig {
     pub fn from_env_optional() -> Result<Option<Self>, ConfigError> {
         let tenant_id = match env::var("LOCALZET_BOOTSTRAP_TENANT_ID") {
-            Ok(value) => value.parse::<Uuid>().map_err(|_| ConfigError::InvalidUuid {
-                name: "LOCALZET_BOOTSTRAP_TENANT_ID",
-            })?,
+            Ok(value) => value
+                .parse::<Uuid>()
+                .map_err(|_| ConfigError::InvalidUuid {
+                    name: "LOCALZET_BOOTSTRAP_TENANT_ID",
+                })?,
             Err(env::VarError::NotPresent) => return Ok(None),
             Err(_) => {
                 return Err(ConfigError::MissingEnv {
@@ -122,20 +125,21 @@ impl SigningConfig {
             }
         };
 
-        let public_key_pem = match env::var("LOCALZET_SIGNING_PUBLIC_KEY_PATH") {
-            Ok(path) => fs::read_to_string(&path).map_err(|_| ConfigError::ReadFile {
-                name: "LOCALZET_SIGNING_PUBLIC_KEY_PATH",
-            })?,
-            Err(env::VarError::NotPresent) => env::var("LOCALZET_SIGNING_PUBLIC_KEY_PEM")
-                .map_err(|_| ConfigError::MissingEnv {
-                    name: "LOCALZET_SIGNING_PUBLIC_KEY_PEM",
-                })?,
-            Err(_) => {
-                return Err(ConfigError::MissingEnv {
+        let public_key_pem =
+            match env::var("LOCALZET_SIGNING_PUBLIC_KEY_PATH") {
+                Ok(path) => fs::read_to_string(&path).map_err(|_| ConfigError::ReadFile {
                     name: "LOCALZET_SIGNING_PUBLIC_KEY_PATH",
-                });
-            }
-        };
+                })?,
+                Err(env::VarError::NotPresent) => env::var("LOCALZET_SIGNING_PUBLIC_KEY_PEM")
+                    .map_err(|_| ConfigError::MissingEnv {
+                        name: "LOCALZET_SIGNING_PUBLIC_KEY_PEM",
+                    })?,
+                Err(_) => {
+                    return Err(ConfigError::MissingEnv {
+                        name: "LOCALZET_SIGNING_PUBLIC_KEY_PATH",
+                    });
+                }
+            };
 
         Ok(Some(Self {
             key_id: env::var("LOCALZET_SIGNING_KEY_ID").unwrap_or_else(|_| "main-rs256".to_owned()),

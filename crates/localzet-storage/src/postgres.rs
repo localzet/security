@@ -3,11 +3,10 @@ use std::str::FromStr;
 use async_trait::async_trait;
 use localzet_config::DatabaseConfig;
 use localzet_domain::{
-    AuthorizationCode, AuthorizationCodeRepository, AuthorizationCodeStatus,
     Application, ApplicationKind, ApplicationRepository, AuthenticationContext,
-    AuthenticationMethod, PkceChallengeMethod, RefreshTokenRecord,
-    RefreshTokenRepository, RefreshTokenStatus, RepositoryError, Session,
-    SessionRepository, SessionStatus, TenantId, TenantScopedRepository,
+    AuthenticationMethod, AuthorizationCode, AuthorizationCodeRepository, AuthorizationCodeStatus,
+    PkceChallengeMethod, RefreshTokenRecord, RefreshTokenRepository, RefreshTokenStatus,
+    RepositoryError, Session, SessionRepository, SessionStatus, TenantId, TenantScopedRepository,
     TokenFamilyId, TokenSubject, UserId,
 };
 use serde_json::Value;
@@ -285,7 +284,10 @@ impl RefreshTokenRepository for PostgresStore {
 
 #[async_trait]
 impl AuthorizationCodeRepository for PostgresStore {
-    async fn save_authorization_code(&self, code: &AuthorizationCode) -> Result<(), RepositoryError> {
+    async fn save_authorization_code(
+        &self,
+        code: &AuthorizationCode,
+    ) -> Result<(), RepositoryError> {
         self.assert_tenant_scope(code.tenant_id).await?;
 
         sqlx::query(
@@ -397,7 +399,8 @@ impl AuthorizationCodeRepository for PostgresStore {
 fn map_application_row(row: sqlx::postgres::PgRow) -> Result<Application, RepositoryError> {
     let redirect_uris: Value = row.try_get("redirect_uris").map_err(storage_error)?;
     let scopes: Value = row.try_get("scopes").map_err(storage_error)?;
-    let redirect_uris: Vec<String> = serde_json::from_value(redirect_uris).map_err(serialization_error)?;
+    let redirect_uris: Vec<String> =
+        serde_json::from_value(redirect_uris).map_err(serialization_error)?;
     let scopes: Vec<String> = serde_json::from_value(scopes).map_err(serialization_error)?;
 
     Ok(Application {
@@ -416,7 +419,9 @@ fn map_application_row(row: sqlx::postgres::PgRow) -> Result<Application, Reposi
 }
 
 fn map_session_row(row: sqlx::postgres::PgRow) -> Result<Session, RepositoryError> {
-    let methods: Value = row.try_get("authentication_methods").map_err(storage_error)?;
+    let methods: Value = row
+        .try_get("authentication_methods")
+        .map_err(storage_error)?;
     let methods: Vec<String> = serde_json::from_value(methods).map_err(serialization_error)?;
     let methods = methods
         .into_iter()
@@ -429,18 +434,24 @@ fn map_session_row(row: sqlx::postgres::PgRow) -> Result<Session, RepositoryErro
         user_id: UserId(row.try_get("user_id").map_err(storage_error)?),
         created_at: row.try_get("created_at").map_err(storage_error)?,
         expires_at: row.try_get("expires_at").map_err(storage_error)?,
-        last_authenticated_at: row.try_get("last_authenticated_at").map_err(storage_error)?,
+        last_authenticated_at: row
+            .try_get("last_authenticated_at")
+            .map_err(storage_error)?,
         authentication_context: AuthenticationContext {
             methods,
             step_up_required: row.try_get("step_up_required").map_err(storage_error)?,
             device_id: row.try_get("device_id").map_err(storage_error)?,
         },
-        status: SessionStatus::from_str(&row.try_get::<String, _>("status").map_err(storage_error)?)
-            .map_err(domain_error)?,
+        status: SessionStatus::from_str(
+            &row.try_get::<String, _>("status").map_err(storage_error)?,
+        )
+        .map_err(domain_error)?,
     })
 }
 
-fn map_refresh_token_row(row: sqlx::postgres::PgRow) -> Result<RefreshTokenRecord, RepositoryError> {
+fn map_refresh_token_row(
+    row: sqlx::postgres::PgRow,
+) -> Result<RefreshTokenRecord, RepositoryError> {
     let subject_type: String = row.try_get("subject_type").map_err(storage_error)?;
     let subject_id: Uuid = row.try_get("subject_id").map_err(storage_error)?;
 
@@ -452,13 +463,17 @@ fn map_refresh_token_row(row: sqlx::postgres::PgRow) -> Result<RefreshTokenRecor
         token_hash: row.try_get("token_hash").map_err(storage_error)?,
         issued_at: row.try_get("issued_at").map_err(storage_error)?,
         expires_at: row.try_get("expires_at").map_err(storage_error)?,
-        status: RefreshTokenStatus::from_str(&row.try_get::<String, _>("status").map_err(storage_error)?)
-            .map_err(domain_error)?,
+        status: RefreshTokenStatus::from_str(
+            &row.try_get::<String, _>("status").map_err(storage_error)?,
+        )
+        .map_err(domain_error)?,
         replaced_by: row.try_get("replaced_by").map_err(storage_error)?,
     })
 }
 
-fn map_authorization_code_row(row: sqlx::postgres::PgRow) -> Result<AuthorizationCode, RepositoryError> {
+fn map_authorization_code_row(
+    row: sqlx::postgres::PgRow,
+) -> Result<AuthorizationCode, RepositoryError> {
     let scopes: Value = row.try_get("scopes").map_err(storage_error)?;
     let scopes: Vec<String> = serde_json::from_value(scopes).map_err(serialization_error)?;
 
@@ -476,7 +491,8 @@ fn map_authorization_code_row(row: sqlx::postgres::PgRow) -> Result<Authorizatio
         code_hash: row.try_get("code_hash").map_err(storage_error)?,
         code_challenge: row.try_get("code_challenge").map_err(storage_error)?,
         code_challenge_method: PkceChallengeMethod::from_str(
-            &row.try_get::<String, _>("code_challenge_method").map_err(storage_error)?,
+            &row.try_get::<String, _>("code_challenge_method")
+                .map_err(storage_error)?,
         )
         .map_err(domain_error)?,
         expires_at: row.try_get("expires_at").map_err(storage_error)?,
@@ -526,8 +542,17 @@ mod tests {
 
     #[test]
     fn string_enums_roundtrip() {
-        assert_eq!(AuthenticationMethod::from_str("passkey").unwrap().as_str(), "passkey");
-        assert_eq!(SessionStatus::from_str("active").unwrap().as_str(), "active");
-        assert_eq!(RefreshTokenStatus::from_str("revoked").unwrap().as_str(), "revoked");
+        assert_eq!(
+            AuthenticationMethod::from_str("passkey").unwrap().as_str(),
+            "passkey"
+        );
+        assert_eq!(
+            SessionStatus::from_str("active").unwrap().as_str(),
+            "active"
+        );
+        assert_eq!(
+            RefreshTokenStatus::from_str("revoked").unwrap().as_str(),
+            "revoked"
+        );
     }
 }

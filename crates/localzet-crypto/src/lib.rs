@@ -24,7 +24,10 @@ impl Default for PasswordHasherService {
 impl PasswordHasherService {
     pub fn hash_password(&self, password: &str) -> Result<String, CryptoError> {
         let salt = SaltString::generate(&mut OsRng);
-        Ok(self.engine.hash_password(password.as_bytes(), &salt)?.to_string())
+        Ok(self
+            .engine
+            .hash_password(password.as_bytes(), &salt)?
+            .to_string())
     }
 
     pub fn verify_password(&self, password: &str, hash: &str) -> Result<(), CryptoError> {
@@ -63,7 +66,9 @@ mod tests {
     #[test]
     fn password_roundtrip_succeeds() {
         let service = PasswordHasherService::default();
-        let hash = service.hash_password("correct horse battery staple").expect("hash");
+        let hash = service
+            .hash_password("correct horse battery staple")
+            .expect("hash");
 
         service
             .verify_password("correct horse battery staple", &hash)
@@ -73,7 +78,9 @@ mod tests {
     #[test]
     fn wrong_password_is_rejected() {
         let service = PasswordHasherService::default();
-        let hash = service.hash_password("correct horse battery staple").expect("hash");
+        let hash = service
+            .hash_password("correct horse battery staple")
+            .expect("hash");
 
         let result = service.verify_password("wrong password", &hash);
         assert!(result.is_err());

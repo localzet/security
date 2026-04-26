@@ -8,8 +8,7 @@ use axum::{
     Form, Json, Router,
 };
 use localzet_auth_core::{
-    AuthServiceError, AuthorizationCodeService, DiscoveryService, JwtIssuer,
-    RefreshTokenService,
+    AuthServiceError, AuthorizationCodeService, DiscoveryService, JwtIssuer, RefreshTokenService,
 };
 use localzet_config::{BootstrapConfig, DatabaseConfig, HttpConfig, SigningConfig};
 use localzet_domain::{PkceChallengeMethod, TenantId, TokenSubject, UserId};
@@ -104,7 +103,8 @@ fn init_issuer(http: &HttpConfig) -> Option<JwtIssuer> {
 }
 
 async fn bootstrap_store(store: &PostgresStore) -> Result<(), String> {
-    let Some(config) = BootstrapConfig::from_env_optional().map_err(|error| error.to_string())? else {
+    let Some(config) = BootstrapConfig::from_env_optional().map_err(|error| error.to_string())?
+    else {
         return Ok(());
     };
 
@@ -163,7 +163,10 @@ async fn liveness() -> StatusCode {
 
 async fn readiness(State(state): State<AppState>) -> impl IntoResponse {
     if let Some(store) = &state.store {
-        if localzet_storage::postgres::healthcheck(store.pool()).await.is_err() {
+        if localzet_storage::postgres::healthcheck(store.pool())
+            .await
+            .is_err()
+        {
             return (
                 StatusCode::SERVICE_UNAVAILABLE,
                 Json(serde_json::json!({
@@ -208,7 +211,9 @@ async fn authorize(
     let user_id = parse_user_id(&query.user_id)?;
 
     if query.response_type != "code" {
-        return Err(OAuthErrorResponse::invalid_request("unsupported response_type"));
+        return Err(OAuthErrorResponse::invalid_request(
+            "unsupported response_type",
+        ));
     }
 
     if query.code_challenge_method.as_deref() != Some("S256") {
@@ -233,9 +238,10 @@ async fn authorize(
             user_id,
             redirect_uri.clone(),
             scopes,
-            query.code_challenge.as_deref().ok_or_else(|| {
-                OAuthErrorResponse::invalid_request("code_challenge is required")
-            })?,
+            query
+                .code_challenge
+                .as_deref()
+                .ok_or_else(|| OAuthErrorResponse::invalid_request("code_challenge is required"))?,
             PkceChallengeMethod::S256,
         )
         .await
@@ -269,9 +275,10 @@ async fn token(
 
     match form.grant_type.as_str() {
         "authorization_code" => {
-            let client_id = form.client_id.as_deref().ok_or_else(|| {
-                OAuthErrorResponse::invalid_request("client_id is required")
-            })?;
+            let client_id = form
+                .client_id
+                .as_deref()
+                .ok_or_else(|| OAuthErrorResponse::invalid_request("client_id is required"))?;
             let redirect_uri = form
                 .redirect_uri
                 .as_deref()
@@ -283,9 +290,10 @@ async fn token(
                 .code
                 .as_deref()
                 .ok_or_else(|| OAuthErrorResponse::invalid_request("code is required"))?;
-            let code_verifier = form.code_verifier.as_deref().ok_or_else(|| {
-                OAuthErrorResponse::invalid_request("code_verifier is required")
-            })?;
+            let code_verifier = form
+                .code_verifier
+                .as_deref()
+                .ok_or_else(|| OAuthErrorResponse::invalid_request("code_verifier is required"))?;
 
             let authorization = state
                 .authorization_codes
@@ -303,11 +311,7 @@ async fn token(
 
             let refresh = state
                 .refresh_tokens
-                .issue_initial_token(
-                    store,
-                    tenant_id,
-                    TokenSubject::User(authorization.user_id),
-                )
+                .issue_initial_token(store, tenant_id, TokenSubject::User(authorization.user_id))
                 .await
                 .map_err(map_auth_error)?;
 
@@ -337,12 +341,14 @@ async fn token(
             )))
         }
         "refresh_token" => {
-            let client_id = form.client_id.as_deref().ok_or_else(|| {
-                OAuthErrorResponse::invalid_request("client_id is required")
-            })?;
-            let refresh_token = form.refresh_token.as_deref().ok_or_else(|| {
-                OAuthErrorResponse::invalid_request("refresh_token is required")
-            })?;
+            let client_id = form
+                .client_id
+                .as_deref()
+                .ok_or_else(|| OAuthErrorResponse::invalid_request("client_id is required"))?;
+            let refresh_token = form
+                .refresh_token
+                .as_deref()
+                .ok_or_else(|| OAuthErrorResponse::invalid_request("refresh_token is required"))?;
 
             let rotated = state
                 .refresh_tokens
@@ -393,7 +399,8 @@ async fn introspect(
 }
 
 fn parse_tenant_id(value: &str) -> Result<TenantId, OAuthErrorResponse> {
-    value.parse::<Uuid>()
+    value
+        .parse::<Uuid>()
         .map(TenantId)
         .map_err(|_| OAuthErrorResponse::invalid_request("invalid tenant_id"))
 }
@@ -445,9 +452,9 @@ fn map_auth_error(error: AuthServiceError) -> OAuthErrorResponse {
         | AuthServiceError::InvalidPkceVerifier
         | AuthServiceError::RefreshTokenNotFound
         | AuthServiceError::RefreshTokenExpired
-        | AuthServiceError::RefreshTokenReuseDetected => OAuthErrorResponse::invalid_grant(
-            &error.to_string(),
-        ),
+        | AuthServiceError::RefreshTokenReuseDetected => {
+            OAuthErrorResponse::invalid_grant(&error.to_string())
+        }
         AuthServiceError::Repository(_) => OAuthErrorResponse::server_error("repository failure"),
     }
 }
