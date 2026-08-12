@@ -22,7 +22,7 @@ homepage = "https://github.com/localzet/security"
 description = "Open-source security control plane for applications, APIs, and CLI workloads"
 
 [workspace.dependencies]
-axum = { version = "0.7", features = ["macros"] }
+axum = { version = "0.8", features = ["macros"] }
 base64ct = { version = "1.6", features = ["alloc"] }
 chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
 http = "1"
