@@ -34,6 +34,8 @@ services:
       LOCALZET_SIGNING_PRIVATE_KEY_PATH: /app/keys/dev-private.pem
       LOCALZET_SIGNING_PUBLIC_KEY_PATH: /app/keys/dev-public.pem
       RUST_LOG: info,tower_http=info
+    volumes:
+      - ../keys:/app/keys:ro
     depends_on:
       postgres:
         condition: service_healthy
