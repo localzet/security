@@ -4,11 +4,12 @@ use async_trait::async_trait;
 use localzet_config::DatabaseConfig;
 use localzet_domain::{
     Application, ApplicationKind, ApplicationRepository, AuthenticationContext,
-    AuthenticationMethod, AuthorizationCode, AuthorizationCodeRepository, AuthorizationCodeStatus,
+    AuthenticationMethod, AuthorizationCode, AuthorizationCodeStatus,
     PkceChallengeMethod, RefreshTokenRecord, RefreshTokenRepository, RefreshTokenStatus,
     RepositoryError, Session, SessionRepository, SessionStatus, TenantId, TenantScopedRepository,
     TokenFamilyId, TokenSubject, UserId,
 };
+use localzet_domain::repository::AuthorizationCodeRepository;
 use serde_json::Value;
 use sqlx::{postgres::PgPoolOptions, Executor, PgPool, Row};
 use uuid::Uuid;
