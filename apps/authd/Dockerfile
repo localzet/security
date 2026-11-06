@@ -21,7 +21,7 @@ FROM debian:bookworm-slim
 RUN useradd --system --uid 10001 --create-home localzet
 WORKDIR /app
 COPY --from=builder /workspace/target/release/authd /usr/local/bin/authd
-COPY --from=builder /workspace/deploy/keys /app/keys
+RUN mkdir -p /app/keys && chown localzet:localzet /app/keys
 USER localzet
 EXPOSE 8080
 CMD ["/usr/local/bin/authd"]
