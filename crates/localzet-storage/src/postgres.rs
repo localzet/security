@@ -410,8 +410,8 @@ fn map_application_row(row: sqlx::postgres::PgRow) -> Result<Application, Reposi
             .map_err(domain_error)?,
         redirect_uris: redirect_uris
             .into_iter()
-            .map(|uri| uri.parse())
-            .collect::<Result<_, _>>()
+            .map(|uri| uri.parse::<url::Url>())
+            .collect::<Result<Vec<_>, _>>()
             .map_err(|error| RepositoryError::Serialization {
                 message: error.to_string(),
             })?,
