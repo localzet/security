@@ -8,17 +8,9 @@ use rand::RngCore;
 use sha2::{Digest, Sha256};
 use thiserror::Error;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct PasswordHasherService {
     engine: Argon2<'static>,
-}
-
-impl Default for PasswordHasherService {
-    fn default() -> Self {
-        Self {
-            engine: Argon2::default(),
-        }
-    }
 }
 
 impl PasswordHasherService {
