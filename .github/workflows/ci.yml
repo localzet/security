@@ -6,6 +6,17 @@ on:
   pull_request:
 
 jobs:
+  security-files:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Reject tracked signing private keys
+        run: |
+          if git ls-files 'deploy/keys/*.pem' | grep -q .; then
+            echo 'Never commit signing PEMs' >&2
+            exit 1
+          fi
+
   rust:
     runs-on: ubuntu-latest
     steps:
