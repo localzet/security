@@ -40,7 +40,13 @@ impl PasswordHasherService {
 #[derive(Debug, Error)]
 pub enum CryptoError {
     #[error("password hash error")]
-    PasswordHash(#[from] argon2::password_hash::Error),
+    PasswordHash(argon2::password_hash::Error),
+}
+
+impl From<argon2::password_hash::Error> for CryptoError {
+    fn from(error: argon2::password_hash::Error) -> Self {
+        Self::PasswordHash(error)
+    }
 }
 
 #[derive(Debug, Clone, Default)]
