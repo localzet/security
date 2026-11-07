@@ -10,8 +10,8 @@ pub use audit::{AuditAction, AuditEvent, AuditTarget};
 pub use identity::{Application, ApplicationKind, IdentityId, SessionId, UserId};
 pub use oauth::{AuthorizationCode, AuthorizationCodeStatus, PkceChallengeMethod};
 pub use repository::{
-    ApplicationRepository, RefreshTokenRepository, RepositoryError, SessionRepository,
-    TenantScopedRepository,
+    ApplicationRepository, AuthorizationCodeRepository, RefreshTokenRepository, RepositoryError,
+    SessionRepository, TenantScopedRepository,
 };
 pub use session::{
     AuthenticationContext, AuthenticationMethod, Session, SessionStatus, TokenFamilyId,

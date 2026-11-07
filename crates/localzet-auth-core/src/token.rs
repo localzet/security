@@ -10,7 +10,7 @@ use uuid::Uuid;
 use crate::Jwk;
 use localzet_domain::{TenantId, UserId};
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct JwtIssuer {
     issuer: String,
     key_id: String,
@@ -101,9 +101,9 @@ impl JwtIssuer {
         let claims = claims.0;
         Ok(IntrospectionResponse {
             active: true,
-            scope: claims.scope.clone(),
-            client_id: claims.aud.clone(),
-            username: claims.sub.clone(),
+            scope: Some(claims.scope.clone()),
+            client_id: Some(claims.aud.clone()),
+            username: Some(claims.sub.clone()),
             token_type: Some("Bearer".to_owned()),
             exp: Some(claims.exp),
             iat: Some(claims.iat),

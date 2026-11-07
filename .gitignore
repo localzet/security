@@ -12,3 +12,5 @@ dist/
 node_modules/
 *.log
 Cargo.lock
+
+/deploy/keys/*.pem

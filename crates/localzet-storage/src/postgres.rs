@@ -2,12 +2,13 @@ use std::str::FromStr;
 
 use async_trait::async_trait;
 use localzet_config::DatabaseConfig;
+use localzet_domain::repository::AuthorizationCodeRepository;
 use localzet_domain::{
     Application, ApplicationKind, ApplicationRepository, AuthenticationContext,
-    AuthenticationMethod, AuthorizationCode, AuthorizationCodeRepository, AuthorizationCodeStatus,
-    PkceChallengeMethod, RefreshTokenRecord, RefreshTokenRepository, RefreshTokenStatus,
-    RepositoryError, Session, SessionRepository, SessionStatus, TenantId, TenantScopedRepository,
-    TokenFamilyId, TokenSubject, UserId,
+    AuthenticationMethod, AuthorizationCode, AuthorizationCodeStatus, PkceChallengeMethod,
+    RefreshTokenRecord, RefreshTokenRepository, RefreshTokenStatus, RepositoryError, Session,
+    SessionRepository, SessionStatus, TenantId, TenantScopedRepository, TokenFamilyId,
+    TokenSubject, UserId,
 };
 use serde_json::Value;
 use sqlx::{postgres::PgPoolOptions, Executor, PgPool, Row};
@@ -409,8 +410,8 @@ fn map_application_row(row: sqlx::postgres::PgRow) -> Result<Application, Reposi
             .map_err(domain_error)?,
         redirect_uris: redirect_uris
             .into_iter()
-            .map(|uri| uri.parse())
-            .collect::<Result<_, _>>()
+            .map(|uri| uri.parse::<url::Url>())
+            .collect::<Result<Vec<_>, _>>()
             .map_err(|error| RepositoryError::Serialization {
                 message: error.to_string(),
             })?,

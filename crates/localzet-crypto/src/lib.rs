@@ -8,17 +8,9 @@ use rand::RngCore;
 use sha2::{Digest, Sha256};
 use thiserror::Error;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct PasswordHasherService {
     engine: Argon2<'static>,
-}
-
-impl Default for PasswordHasherService {
-    fn default() -> Self {
-        Self {
-            engine: Argon2::default(),
-        }
-    }
 }
 
 impl PasswordHasherService {
@@ -40,7 +32,13 @@ impl PasswordHasherService {
 #[derive(Debug, Error)]
 pub enum CryptoError {
     #[error("password hash error")]
-    PasswordHash(#[from] argon2::password_hash::Error),
+    PasswordHash(argon2::password_hash::Error),
+}
+
+impl From<argon2::password_hash::Error> for CryptoError {
+    fn from(error: argon2::password_hash::Error) -> Self {
+        Self::PasswordHash(error)
+    }
 }
 
 #[derive(Debug, Clone, Default)]
