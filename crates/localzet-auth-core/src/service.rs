@@ -29,6 +29,8 @@ impl AuthorizationCodeService {
         Self { tokens, code_ttl }
     }
 
+    // Existing service API: refactor to a request type in a separate compatibility PR.
+    #[allow(clippy::too_many_arguments)]
     pub async fn issue_code<R>(
         &self,
         applications: &R,
